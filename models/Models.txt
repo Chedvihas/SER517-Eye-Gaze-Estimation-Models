@@ -1,0 +1,6 @@
+Models to be used
+
+1) iTracker
+2) Gaze Estimation
+3) iMon
+4) GAZEL
