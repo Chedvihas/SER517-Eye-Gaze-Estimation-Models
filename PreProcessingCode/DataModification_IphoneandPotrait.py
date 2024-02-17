@@ -106,3 +106,11 @@ def assign_work(path, out_dir, threads):
         
     for proc in procs:
         proc.join()
+
+def main():
+    args = parser.parse_args()
+    assign_work(args.dir, args.out_dir, args.threads)
+    print("Conversion Complete")
+
+if __name__=="__main__":
+    main()
