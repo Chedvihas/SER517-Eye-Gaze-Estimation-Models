@@ -61,3 +61,11 @@ def run_process(path, out_dir, threads):
         
     for process in processes:
         process.join()
+
+def main():
+    arguments = parser.parse_args()
+    run_process(arguments.dir, arguments.out_dir, arguments.threads)
+    print("Conversion Complete")
+
+if __name__=="__main__":
+    main()
