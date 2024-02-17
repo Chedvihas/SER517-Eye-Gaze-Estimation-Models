@@ -89,3 +89,20 @@ def convert_dataset(files, out_root):
                 json.dump(meta, outfile)
             ctr+=1
     return 0
+
+def assign_work(path, out_dir, threads):
+    procs = []
+    files = [a for a in glob(path+"/*/") if a.split('/')[-2][0] == "0"]
+    chunk = len(files)//threads
+    print(len(files))
+    for i in range(threads): 
+        f = files[i*chunk:(i+1)*chunk]
+        if(i==threads-1):
+            f = files[i*chunk:]
+        
+        proc = Process(target=convert_dataset, args=(f, out_dir))
+        procs.append(proc)
+        proc.start()
+        
+    for proc in procs:
+        proc.join()
