@@ -43,3 +43,21 @@ def modify_dataset(files, out_root_dir):
                 json.dump(meta, outfile)
         print(i + " completed. Images = " + str(len(frame_ids)))
     return 0
+
+
+def run_process(path, out_dir, threads):
+    processes = []
+    files = glob(path+"/*/")
+    chunk = len(files)//threads
+    print(len(files))
+    for i in range(threads): 
+        f = files[i*chunk:(i+1)*chunk]
+        if(i==threads-1):
+            f = files[i*chunk:]
+        
+        process = Process(target=convert_dataset, args=(f, out_dir))
+        processes.append(proc)
+        process.start()
+        
+    for process in processes:
+        process.join()
