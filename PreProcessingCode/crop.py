@@ -10,7 +10,27 @@ def crop_repeating_edge(image, rect):
     right_padding = max((crop_x + crop_w - 1) - image.shape[1], 0)
     bottom_padding = max((crop_y + crop_h - 1) - image.shape[0], 0)
     
+    content_out_pixels_y = slice(0 + top_padding, crop_h - bottom_padding)
+    content_out_pixels_x = slice(0 + left_padding, crop_w - right_padding)
+    content_in_pixels_y = slice(crop_y + top_padding, crop_y + crop_h - bottom_padding)
+    content_in_pixels_x = slice(crop_x + left_padding, crop_x + crop_w - right_padding)
+
+    output[content_out_pixels_y, content_out_pixels_x, :] = \
+        image[content_in_pixels_y, content_in_pixels_x, :]
+    
     if len(content_out_pixels_x) == 0 or len(content_out_pixels_y) == 0:
         print('No out pixels in x or y direction.')
         output = np.nan
         return output
+        
+        
+import imageio
+import os
+
+frame = imageio.imread("/Volumes/Extreme SSD/517-small-data-model/data/00002/frames/00000.jpg")
+print(frame, frame.shape)
+import matplotlib.pyplot as plt
+
+plt.imshow(frame)
+plt.axis('off')  
+plt.show()
