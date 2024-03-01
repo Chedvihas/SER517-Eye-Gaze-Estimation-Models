@@ -22,6 +22,22 @@ def crop_repeating_edge(image, rect):
         print('No out pixels in x or y direction.')
         output = np.nan
         return output
+    
+    output[:top_padding, content_out_pixels_x, :] = \
+        np.tile(output[content_out_pixels_y.start, content_out_pixels_x, :],
+                (top_padding, 1, 1))
+    output[-bottom_padding:, content_out_pixels_x, :] = \
+        np.tile(output[content_out_pixels_y.stop - 1, content_out_pixels_x, :],
+                (bottom_padding, 1, 1))
+
+    output[:, :left_padding, :] = \
+        np.tile(output[:, content_out_pixels_x.start, :],
+                (1, left_padding, 1))
+    output[:, -right_padding:, :] = \
+        np.tile(output[:, content_out_pixels_x.stop - 1, :],
+                (1, right_padding, 1))
+
+    return output
         
         
 import imageio
