@@ -9,3 +9,8 @@ def crop_repeating_edge(image, rect):
     top_padding = max(0, 1 - crop_y)
     right_padding = max((crop_x + crop_w - 1) - image.shape[1], 0)
     bottom_padding = max((crop_y + crop_h - 1) - image.shape[0], 0)
+    
+    if len(content_out_pixels_x) == 0 or len(content_out_pixels_y) == 0:
+        print('No out pixels in x or y direction.')
+        output = np.nan
+        return output
