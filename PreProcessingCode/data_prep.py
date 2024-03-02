@@ -107,3 +107,71 @@ def load_subject(path):
         }
 
     return output
+
+
+base_directory = '/Volumes/Extreme SSD/517-small-data-model/data'
+if not os.path.exists(base_directory):
+    raise ValueError("The specified base directory does not exist. Please edit the script to specify the root of the numbered subject directories.")
+
+subject_dirs = os.listdir(base_directory)
+print(subject_dirs, type(subject_dirs))
+for curr_subject in subject_dirs:
+    full_path = os.path.join(base_directory, curr_subject)
+    print(curr_subject)
+    print(os.path.isdir(curr_subject))
+    # Valid subject directories have five-digit numbers.
+    if not (os.path.isdir(full_path) and len(curr_subject) == 5 and curr_subject.isdigit()):
+        continue
+    print(f"Processing subject {curr_subject}...")
+    subject_dir = os.path.join(base_directory, curr_subject)
+    s = load_subject(subject_dir)
+    apple_face_dir = os.path.join(subject_dir, 'appleFace')
+    apple_left_eye_dir = os.path.join(subject_dir, 'appleLeftEye')
+    apple_right_eye_dir = os.path.join(subject_dir, 'appleRightEye')
+    os.makedirs(apple_face_dir, exist_ok=True)
+    os.makedirs(apple_left_eye_dir, exist_ok=True)
+    os.makedirs(apple_right_eye_dir, exist_ok=True)
+    
+    for i in range(len(s['frames'])):
+        frame_filename = s['frames'][i]
+        frame = cv2.imread(os.path.join(subject_dir, 'frames', frame_filename))
+        # iTracker requires we have face and eye detections; we don't save
+        # any if we don't have all three.
+
+
+        # Assuming i is defined
+        if math.isnan(s['appleFace']['x'][i]) or math.isnan(s['appleLeftEye']['x'][i]) or math.isnan(s['appleRightEye']['x'][i]):
+            continue
+
+       
+            # Concatenate the bounding box coordinates for the face region
+        face_bbox = [round(s['appleFace']['x'][i]), round(s['appleFace']['y'][i]), round(s['appleFace']['w'][i]), round(s['appleFace']['h'][i])]
+
+
+
+
+        print(face_bbox)
+        left_eye_bbox_values = [s['appleLeftEye']['x'][i], s['appleLeftEye']['y'][i], s['appleLeftEye']['w'][i], s['appleLeftEye']['h'][i]]
+
+# Filter out NaN values and round the coordinates for the left eye
+        left_eye_bbox_rounded = [round(val) for val in left_eye_bbox_values if not np.isnan(val)]
+
+        # Round the bounding box coordinates for the right eye
+        right_eye_bbox_values = [s['appleRightEye']['x'][i], s['appleRightEye']['y'][i], s['appleRightEye']['w'][i], s['appleRightEye']['h'][i]]
+
+# Filter out NaN values and round the coordinates for the right eye
+        right_eye_bbox_rounded = [round(val) for val in right_eye_bbox_values if not np.isnan(val)]
+
+
+        # Crop left eye image
+        face_image = crop_repeating_edge(frame, face_bbox)
+        left_eye_image = crop_repeating_edge(face_image, left_eye_bbox_rounded)
+        right_eye_image = crop_repeating_edge(face_image, right_eye_bbox_rounded)
+    
+    
+        
+
+        
+        cv2.imwrite(os.path.join(apple_face_dir, frame_filename), face_image)
+        cv2.imwrite(os.path.join(apple_left_eye_dir, frame_filename), left_eye_image)
+        cv2.imwrite(os.path.join(apple_right_eye_dir, frame_filename), right_eye_image)
