@@ -76,3 +76,7 @@ solver_param = {
 # Write solver file
 with open('solver.prototxt', 'w') as f:
     f.write(str(to_proto(solver_param)))
+
+# Write train and test net files
+with open('itracker_train_val.prototxt', 'w') as f:
+    f.write(str(itracker_net(train=True)))
