@@ -59,3 +59,51 @@ def load_subject(path):
             'w': [input_data['W'][i] if input_data['IsValid'][i] else float('nan') for i in range(len(input_data['W']))],
             'h': [input_data['H'][i] if input_data['IsValid'][i] else float('nan') for i in range(len(input_data['H']))]
         }
+
+    # Dot Information
+    with open(os.path.join(path, 'dotInfo.json'), 'r') as file:
+        input_data = json.load(file)
+        output['dot'] = {
+            'num': input_data['DotNum'],
+            'xPts': input_data['XPts'],
+            'yPts': input_data['YPts'],
+            'xCam': input_data['XCam'],
+            'yCam': input_data['YCam'],
+            'time': input_data['Time']
+        }
+
+    # Face Grid
+    with open(os.path.join(path, 'faceGrid.json'), 'r') as file:
+        input_data = json.load(file)
+        output['faceGrid'] = {
+            'x': [input_data['X'][i] if input_data['IsValid'][i] else float('nan') for i in range(len(input_data['X']))],
+            'y': [input_data['Y'][i] if input_data['IsValid'][i] else float('nan') for i in range(len(input_data['Y']))],
+            'w': [input_data['W'][i] if input_data['IsValid'][i] else float('nan') for i in range(len(input_data['W']))],
+            'h': [input_data['H'][i] if input_data['IsValid'][i] else float('nan') for i in range(len(input_data['H']))]
+        }
+
+    # Frames
+    with open(os.path.join(path, 'frames.json'), 'r') as file:
+        output['frames'] = json.load(file)
+
+    # Info
+    with open(os.path.join(path, 'info.json'), 'r') as file:
+        input_data = json.load(file)
+        output['info'] = {
+            'totalFrames': input_data['TotalFrames'],
+            'numFaceDetections': input_data['NumFaceDetections'],
+            'numEyeDetections': input_data['NumEyeDetections'],
+            'dataset': input_data['Dataset'],
+            'deviceName': input_data['DeviceName']
+        }
+
+    # Screen
+    with open(os.path.join(path, 'screen.json'), 'r') as file:
+        input_data = json.load(file)
+        output['screen'] = {
+            'w': input_data['W'],
+            'h': input_data['H'],
+            'orientation': input_data['Orientation']
+        }
+
+    return output
