@@ -72,3 +72,7 @@ solver_param = {
     'snapshot_prefix': "snapshots/itracker",
     'solver_mode': P.Solver.GPU
 }
+
+# Write solver file
+with open('solver.prototxt', 'w') as f:
+    f.write(str(to_proto(solver_param)))
