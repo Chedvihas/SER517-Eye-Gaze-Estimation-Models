@@ -194,5 +194,59 @@ def main():
     #import pdb; pdb.set_trace()
     input("Press Enter to continue...")
 
+def readJson(filename):
+    if not os.path.isfile(filename):
+        logError('Warning: No such file %s!' % filename)
+        return None
 
+    with open(filename) as f:
+        try:
+            data = json.load(f)
+        except:
+            data = None
+
+    if data is None:
+        logError('Warning: Could not read file %s!' % filename)
+        return None
+
+    return data
+
+def preparePath(path, clear = False):
+    if not os.path.isdir(path):
+        os.makedirs(path, 0o777)
+    if clear:
+        files = os.listdir(path)
+        for f in files:
+            fPath = os.path.join(path, f)
+            if os.path.isdir(fPath):
+                shutil.rmtree(fPath)
+            else:
+                os.remove(fPath)
+
+    return path
+
+def logError(msg, critical = False):
+    print(msg)
+    if critical:
+        sys.exit(1)
+
+
+def cropImage(img, bbox):
+    bbox = np.array(bbox, int)
+
+    aSrc = np.maximum(bbox[:2], 0)
+    bSrc = np.minimum(bbox[:2] + bbox[2:], (img.shape[1], img.shape[0]))
+
+    aDst = aSrc - bbox[:2]
+    bDst = aDst + (bSrc - aSrc)
+
+    res = np.zeros((bbox[3], bbox[2], img.shape[2]), img.dtype)    
+    res[aDst[1]:bDst[1],aDst[0]:bDst[0],:] = img[aSrc[1]:bSrc[1],aSrc[0]:bSrc[0],:]
+
+    return res
+
+
+if __name__ == "__main__":
+    main()
+    print('DONE')
 
