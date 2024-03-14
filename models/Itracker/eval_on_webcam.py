@@ -53,6 +53,18 @@ def getFaceGrid(frameW, frameH, faceWidth, faceLeft, faceTop, faceHeight):
     labelFaceGrid = grid
     return labelFaceGrid
 
+def rect_to_bb(rect):
+    x = rect.left()
+    y = rect.top()
+    w = rect.right() - x
+    h = rect.bottom() - y
+    return (x, y, w, h)
+
+def shape_to_np(shape, dtype="int"):
+    coords = np.zeros((68, 2), dtype=dtype)
+    for i in range(0, 68):
+        coords[i] = (shape.part(i).x, shape.part(i).y)
+    return coords
 
 def get_eye(shape, i, j, image, ):
     (x, y, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
@@ -67,6 +79,28 @@ class SubtractMean(object):
 
     def __call__(self, tensor):
         return tensor.sub(self.meanImg)
+
+one_size = 224
+detector = dlib.get_frontal_face_detector()
+predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+faceMean = sio.loadmat('mean_face_224.mat', squeeze_me=True, struct_as_record=False)['image_mean']
+eyeLeftMean = sio.loadmat('mean_left_224.mat', squeeze_me=True, struct_as_record=False)['image_mean']
+eyeRightMean = sio.loadmat('mean_right_224.mat', squeeze_me=True, struct_as_record=False)['image_mean']
+
+transformFace = transforms.Compose([
+            transforms.Resize((one_size,one_size)),
+            transforms.ToTensor(),
+            SubtractMean(meanImg=faceMean)])
+
+transformEyeL = transforms.Compose([
+            transforms.Resize((one_size,one_size)),
+            transforms.ToTensor(),
+            SubtractMean(meanImg=eyeLeftMean)])
+
+transformEyeR = transforms.Compose([
+    transforms.Resize((one_size,one_size)),
+    transforms.ToTensor(),
+    SubtractMean(meanImg=eyeRightMean)])
 
 def get_data_from_webcam(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
