@@ -68,28 +68,6 @@ class SubtractMean(object):
     def __call__(self, tensor):
         return tensor.sub(self.meanImg)
 
-one_size = 224
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-faceMean = sio.loadmat('mean_face_224.mat', squeeze_me=True, struct_as_record=False)['image_mean']
-eyeLeftMean = sio.loadmat('mean_left_224.mat', squeeze_me=True, struct_as_record=False)['image_mean']
-eyeRightMean = sio.loadmat('mean_right_224.mat', squeeze_me=True, struct_as_record=False)['image_mean']
-
-transformFace = transforms.Compose([
-            transforms.Resize((one_size,one_size)),
-            transforms.ToTensor(),
-            SubtractMean(meanImg=faceMean)])
-
-transformEyeL = transforms.Compose([
-            transforms.Resize((one_size,one_size)),
-            transforms.ToTensor(),
-            SubtractMean(meanImg=eyeLeftMean)])
-
-transformEyeR = transforms.Compose([
-    transforms.Resize((one_size,one_size)),
-    transforms.ToTensor(),
-    SubtractMean(meanImg=eyeRightMean)])
-
 def get_data_from_webcam(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     rects = detector(gray, 1)
