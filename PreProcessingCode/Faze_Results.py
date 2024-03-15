@@ -41,3 +41,32 @@ def process_dir(input_dir, meta_learner_identifier):
             plot_mean_error_with_bars(dataset, data, output_path,
                                       meta_learner_identifier)
 
+
+
+def get_all_data(all_dirs, fname):
+    """Process individual outputs for different k."""
+    all_data = OrderedDict()
+    for d in all_dirs:
+        k = int(d.split('_')[-1])
+        ifpath = '%s/%s' % (d, fname)
+        if os.path.isfile(ifpath):
+            with open(ifpath, 'rb') as f:
+                all_data[k] = pickle.load(f)
+        else:
+            print('Skipping %s' % ifpath)
+    return all_data
+
+
+def common_post(dataset, output_path):
+    plt.title(dataset)
+    plt.xlabel('k')
+    plt.ylabel('Mean Test Error')
+
+    plt.grid()
+    plt.tight_layout()
+
+    plt.savefig(output_path)
+    print('> Wrote to %s' % output_path)
+
+
+
