@@ -63,3 +63,22 @@ class HDFDataset(Dataset):
         if self.hdf is not None:
             self.hdf.close()
             self.hdf = None
+
+    def preprocess_image(self, image):
+        ycrcb = cv.cvtColor(image, cv.COLOR_RGB2YCrCb)
+        ycrcb[:, :, 0] = cv.equalizeHist(ycrcb[:, :, 0])
+        image = cv.cvtColor(ycrcb, cv.COLOR_YCrCb2RGB)
+        image = np.transpose(image, [2, 0, 1])  # Colour image
+        image = 2.0 * image / 255.0 - 1
+        return image
+
+    def preprocess_entry(self, entry):
+        for key, val in entry.items():
+            if isinstance(val, np.ndarray):
+                entry[key] = torch.from_numpy(val.astype(np.float32))
+            elif isinstance(val, int):
+                # NOTE: maybe ints should be signed and 32-bits sometimes
+                entry[key] = torch.tensor(val, dtype=torch.int16, requires_grad=False)
+        return entry
+
+    
