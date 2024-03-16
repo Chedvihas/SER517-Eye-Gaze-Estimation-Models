@@ -13,7 +13,7 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 
 from ITrackerData import ITrackerData
-from ITrackerModel import ITrackerModel
+from models.Itracker.ITrackerModel import ITrackerModel
 
 
 
