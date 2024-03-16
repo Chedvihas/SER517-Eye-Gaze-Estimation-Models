@@ -113,3 +113,31 @@ tf.distribute.MirroredStrategy()
 
 model.compile(loss=custom_loss, optimizer=Adam(lr=1e-3))
 model.summary()
+
+gaze_point = np.load(target+"gaze_point.npy").astype(float)
+left_eye = np.load(target+"left_eye.npy").reshape(-1,resolution,resolution,channels)
+right_eye = np.load(target+"right_eye.npy").reshape(-1,resolution,resolution,channels)
+euler = np.load(target+"euler.npy").reshape(-1,1,1,3)
+facepos = np.load(target+"facepos.npy").reshape(-1,1,1,2)
+left_eye_right_top = np.load(target+"left_eye_right_top.npy")
+left_eye_left_bottom = np.load(target+"left_eye_left_bottom.npy")
+right_eye_right_top = np.load(target+"right_eye_right_top.npy")
+right_eye_left_bottom = np.load(target+"right_eye_left_bottom.npy")
+
+
+left_eye_right_top[:,1] = left_eye_right_top[:,1] - left_eye_left_bottom[:,1]
+left_eye_right_top[:,0] = left_eye_left_bottom[:,0] - left_eye_right_top[:,0]
+
+right_eye_right_top[:,1] = right_eye_right_top[:,1] - right_eye_left_bottom[:,1]
+right_eye_right_top[:,0] = right_eye_left_bottom[:,0] - right_eye_right_top[:,0]
+
+left_eye_size = left_eye_right_top.reshape(-1,1,1,2)
+right_eye_size = left_eye_left_bottom.reshape(-1,1,1,2)
+
+epoch = 1000
+Path(model_dir+'/checkpoint').mkdir(parents=True, exist_ok=True)
+mc = ModelCheckpoint(model_dir+'/checkpoint/gazel_shared_ver.h5', monitor='val_loss', mode='min', save_best_only=True)
+es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
+reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, min_lr=0.001)
+#hist = model.fit([left_eye,right_eye, euler, facepos],gaze_point, validation_split=0.1,epochs=epoch, callbacks=[es, mc])
+hist = model.fit([left_eye, right_eye, euler, facepos, left_eye_size, right_eye_size,],gaze_point, validation_split=0.1,epochs=epoch, callbacks=[es, mc,reduce_lr])
