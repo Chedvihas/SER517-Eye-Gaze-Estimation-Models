@@ -75,3 +75,41 @@ x = SConv3(x)
 right_eye = MaxPooling2D(pool_size = (2, 2), padding='same')(x)
 right_eye = Flatten()(right_eye)
 
+# Eyes
+eyes = concatenate([left_eye, right_eye])
+fc1 = Dense(64, activation='relu')(eyes)
+fc2 = Dense(16, activation='relu')(fc1)
+fc2 = Dropout(rate=dropout_rate)(fc2)
+
+# Facepos
+input4 = Input(shape=(1, 1, 2), name='facepos')
+facepos = Flatten()(input4)
+
+#Euler
+input3 = Input(shape=(1, 1, 3), name='euler')
+euler = Flatten()(input3)
+
+# Eye size
+input5 = Input(shape=(1, 1, 2), name='left_eye_size')
+input6 = Input(shape=(1, 1, 2), name='right_eye_size')
+left_eye_size = Flatten()(input5)
+right_eye_size = Flatten()(input6)
+eye_sizes = concatenate([left_eye_size, right_eye_size])
+
+head_pose = concatenate([euler, facepos, eye_sizes])
+fc_f1 = Dense(16, activation='relu')(head_pose)
+
+# FC2, FC3
+fc2 = concatenate([fc2, fc_f1])
+fc2 = Dense(16, activation='relu')(fc2)
+fc3 = Dense(2, activation='linear', name='pred')(fc2)
+
+fc3 = add([fc3,facepos])
+pred = fc3
+
+model = Model(inputs=[input1, input2, input3, input4, input5, input6], outputs=[pred])
+
+tf.distribute.MirroredStrategy()
+
+model.compile(loss=custom_loss, optimizer=Adam(lr=1e-3))
+model.summary()
